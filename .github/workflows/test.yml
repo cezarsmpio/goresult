@@ -1,0 +1,90 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build the compiled tests
+        run: npm run build:test
+
+      - name: Upload the compiled tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-test
+          path: dist-test
+          if-no-files-found: error
+
+      - name: Build and measure
+        run: npm run size
+
+      - name: Pack
+        run: npm pack
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: goresult-*.tgz
+          if-no-files-found: error
+
+  compatibility:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24, 26]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Download the compiled tests
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-test
+          path: dist-test
+
+      - name: Run the full test suite
+        run: node --test dist-test/test/index.test.js
+
+      - name: Download the package
+        uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: package
+
+      - name: Install the packed package
+        run: |
+          mkdir compat
+          cd compat
+          npm init -y
+          npm pkg set type=module
+          npm install ../package/goresult-*.tgz
+          cp ../scripts/compat.mjs .
+
+      - name: Run the compatibility test
+        working-directory: compat
+        run: node compat.mjs

@@ -1,0 +1,76 @@
+{
+  "name": "goresult",
+  "version": "0.0.0",
+  "description": "Go-style error handling for JavaScript and TypeScript: const [err, result] = await run(fn)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "test:runtime": "node --test test/",
+    "test:types": "tsc -p tsconfig.test.json",
+    "test": "npm run test:runtime && npm run test:types",
+    "build:test": "tsc -p tsconfig.test-build.json",
+    "test:dist": "npm run build:test && node --test dist-test/test/index.test.js",
+    "bench": "node benchmarks/run.ts",
+    "size": "npm run build && node scripts/size.mjs",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "go",
+    "golang",
+    "error",
+    "errors",
+    "error-handling",
+    "result",
+    "tuple",
+    "async",
+    "await",
+    "typescript",
+    "try-catch"
+  ],
+  "author": "Cezar Sampaio",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cezarsmpio/goresult.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cezarsmpio/goresult/issues"
+  },
+  "homepage": "https://github.com/cezarsmpio/goresult#readme",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^11.0.1",
+    "@semantic-release/github": "^12.0.10",
+    "@semantic-release/npm": "^13.2.0",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "semantic-release": "^25.0.9",
+    "tinybench": "^6.2.2",
+    "typescript": "^7.0.2"
+  }
+}
